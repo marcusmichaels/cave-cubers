@@ -1,0 +1,505 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Rubik's Cube Championship Leaderboard</title>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+        <style>
+            :root {
+                --accent-color: #ff4500;
+                --text-color: #333;
+                --container-bg: #ffffff;
+                --border-color: #ddd;
+                --hover-bg: #ffece6;
+            }
+
+            /* Animated gradient background */
+            @keyframes gradientAnimation {
+                0% {
+                    background-position: 0% 50%;
+                }
+                50% {
+                    background-position: 100% 50%;
+                }
+                100% {
+                    background-position: 0% 50%;
+                }
+            }
+
+            /* Header hue animation for extra flair */
+            @keyframes hueAnimation {
+                from {
+                    filter: hue-rotate(0deg);
+                }
+                to {
+                    filter: hue-rotate(360deg);
+                }
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                font-family: "Montserrat", sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                background: linear-gradient(45deg, #ff0000, #ffa500, #ffff00, #008000, #0000ff, #4b0082, #ee82ee);
+                background-size: 400% 400%;
+                animation: gradientAnimation 15s ease infinite;
+            }
+
+            .container {
+                width: 90%;
+                max-width: 800px;
+                background: var(--container-bg);
+                border: 2px solid var(--border-color);
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                margin: 20px;
+            }
+
+            h1,
+            h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                animation: hueAnimation 10s infinite linear;
+            }
+
+            h1 {
+                color: var(--accent-color);
+                font-size: 2.5em;
+            }
+
+            h2 {
+                color: var(--accent-color);
+                font-size: 1.8em;
+                margin-top: 40px;
+            }
+
+            form {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            form input[type="text"] {
+                padding: 12px;
+                font-size: 1.1em;
+                width: 120px;
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                background: #f9f9f9;
+                color: var(--text-color);
+                outline: none;
+                transition:
+                    border-color 0.3s,
+                    box-shadow 0.3s;
+            }
+
+            form input[type="text"]:focus {
+                border-color: var(--accent-color);
+                box-shadow: 0 0 8px var(--accent-color);
+            }
+
+            form button {
+                padding: 12px 20px;
+                font-size: 1.1em;
+                border: none;
+                border-radius: 6px;
+                background-color: var(--accent-color);
+                color: #fff;
+                cursor: pointer;
+                transition:
+                    background-color 0.3s,
+                    transform 0.2s;
+            }
+
+            form button:hover {
+                background-color: #e63900;
+                transform: scale(1.05);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 10px;
+            }
+
+            table thead {
+                background: var(--accent-color);
+            }
+
+            table th,
+            table td {
+                padding: 12px;
+                text-align: center;
+                border: 1px solid var(--border-color);
+            }
+
+            table th {
+                font-size: 1.1em;
+                color: #fff;
+            }
+
+            table tbody tr {
+                background: #fff;
+                transition: background 0.3s;
+            }
+
+            table tbody tr:hover {
+                background: var(--hover-bg);
+            }
+
+            .delete-btn,
+            .stop-btn,
+            .reset-btn {
+                padding: 4px 8px;
+                font-size: 0.9em;
+                border: none;
+                border-radius: 4px;
+                background-color: #ff4d4d;
+                color: #fff;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .delete-btn:hover,
+            .stop-btn:hover,
+            .reset-btn:hover {
+                background-color: #e60000;
+            }
+
+            /* Tournament mode section */
+            #tournamentSection {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 2px dashed var(--border-color);
+            }
+
+            .tournament-timer {
+                text-align: center;
+                font-size: 1.4em;
+                margin-bottom: 20px;
+            }
+
+            #tournamentControls {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+
+            #tournamentControls form {
+                flex: 1 1 auto;
+                max-width: 250px;
+            }
+
+            #tournamentControls button {
+                flex: 1 1 auto;
+                max-width: 150px;
+            }
+
+            /* Reset button styling */
+            #resetTournamentBtn {
+                display: block;
+                margin: 20px auto 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Main Leaderboard Section -->
+            <h1>Cave Cubers Championship Leaderboard</h1>
+            <form id="entryForm">
+                <input type="text" id="initials" placeholder="Initials" required maxlength="3" />
+                <input type="text" id="time" placeholder="Time (s or mm:ss)" required />
+                <button type="submit">Submit</button>
+            </form>
+            <table id="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Initials</th>
+                        <th>Time (s)</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Leaderboard entries will appear here -->
+                </tbody>
+            </table>
+
+            <!-- Aggregated Leaderboard -->
+            <h2>Average Times By Initials</h2>
+            <table id="aggregatedLeaderboard">
+                <thead>
+                    <tr>
+                        <th>Initials</th>
+                        <th>Average Time (s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Aggregated entries will appear here -->
+                </tbody>
+            </table>
+
+            <!-- Tournament Mode Section -->
+            <h2>Tournament Mode</h2>
+            <div id="tournamentSection">
+                <div class="tournament-timer">Main Timer: <span id="tournamentTimer">0.00</span> s</div>
+                <div id="tournamentControls">
+                    <form id="tournamentForm">
+                        <input type="text" id="tournamentInitials" placeholder="Initials" required maxlength="3" />
+                        <button type="submit">Add Participant</button>
+                    </form>
+                    <button id="startTournamentBtn">Start Tournament</button>
+                </div>
+                <table id="tournamentTable">
+                    <thead>
+                        <tr>
+                            <th>Initials</th>
+                            <th>Finish Time (s)</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Tournament participants will appear here -->
+                    </tbody>
+                </table>
+                <!-- Reset Tournament Button -->
+                <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
+            </div>
+        </div>
+
+        <script>
+            // --------------------
+            // Main Leaderboard Code
+            // --------------------
+            let entries = JSON.parse(localStorage.getItem("leaderboardEntries")) || [];
+
+            const form = document.getElementById("entryForm");
+            const leaderboardBody = document.querySelector("#leaderboard tbody");
+            const aggregatedBody = document.querySelector("#aggregatedLeaderboard tbody");
+
+            updateLeaderboard();
+            updateAggregatedLeaderboard();
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault();
+                const initialsInput = document.getElementById("initials");
+                const timeInput = document.getElementById("time");
+                const initials = initialsInput.value.toUpperCase().trim();
+                const timeValue = timeInput.value.trim();
+                let time = 0;
+
+                // Parse time as "mm:ss" or seconds
+                if (timeValue.includes(":")) {
+                    const parts = timeValue.split(":");
+                    if (parts.length === 2) {
+                        const minutes = parseFloat(parts[0]);
+                        const seconds = parseFloat(parts[1]);
+                        if (!isNaN(minutes) && !isNaN(seconds)) {
+                            time = minutes * 60 + seconds;
+                        }
+                    }
+                } else {
+                    time = parseFloat(timeValue);
+                }
+
+                if (initials && !isNaN(time) && time > 0) {
+                    entries.push({ initials, time });
+                    entries.sort((a, b) => a.time - b.time);
+                    updateLeaderboard();
+                    updateAggregatedLeaderboard();
+                    updateLocalStorage();
+                    form.reset();
+                } else {
+                    alert("Please enter valid initials and time.");
+                }
+            });
+
+            function updateLeaderboard() {
+                leaderboardBody.innerHTML = "";
+                entries.forEach((entry, index) => {
+                    const row = document.createElement("tr");
+
+                    const initialsCell = document.createElement("td");
+                    initialsCell.textContent = entry.initials;
+                    row.appendChild(initialsCell);
+
+                    const timeCell = document.createElement("td");
+                    timeCell.textContent = entry.time.toFixed(2);
+                    row.appendChild(timeCell);
+
+                    const actionCell = document.createElement("td");
+                    const deleteBtn = document.createElement("button");
+                    deleteBtn.textContent = "Delete";
+                    deleteBtn.className = "delete-btn";
+                    deleteBtn.addEventListener("click", () => {
+                        entries.splice(index, 1);
+                        updateLeaderboard();
+                        updateAggregatedLeaderboard();
+                        updateLocalStorage();
+                    });
+                    actionCell.appendChild(deleteBtn);
+                    row.appendChild(actionCell);
+
+                    leaderboardBody.appendChild(row);
+                });
+            }
+
+            function updateAggregatedLeaderboard() {
+                const aggregated = {};
+                entries.forEach((entry) => {
+                    if (aggregated[entry.initials]) {
+                        aggregated[entry.initials].sum += entry.time;
+                        aggregated[entry.initials].count++;
+                    } else {
+                        aggregated[entry.initials] = { sum: entry.time, count: 1 };
+                    }
+                });
+
+                const aggregatedData = Object.keys(aggregated).map((initials) => ({
+                    initials,
+                    avgTime: aggregated[initials].sum / aggregated[initials].count,
+                }));
+
+                aggregatedData.sort((a, b) => a.avgTime - b.avgTime);
+
+                aggregatedBody.innerHTML = "";
+                aggregatedData.forEach((item) => {
+                    const row = document.createElement("tr");
+
+                    const initialsCell = document.createElement("td");
+                    initialsCell.textContent = item.initials;
+                    row.appendChild(initialsCell);
+
+                    const avgTimeCell = document.createElement("td");
+                    avgTimeCell.textContent = item.avgTime.toFixed(2);
+                    row.appendChild(avgTimeCell);
+
+                    aggregatedBody.appendChild(row);
+                });
+            }
+
+            function updateLocalStorage() {
+                localStorage.setItem("leaderboardEntries", JSON.stringify(entries));
+            }
+
+            // --------------------
+            // Tournament Mode Code
+            // --------------------
+            let tournamentParticipants = [];
+            let tournamentStarted = false;
+            let tournamentStartTime = null;
+            let tournamentTimerInterval = null;
+
+            const tournamentForm = document.getElementById("tournamentForm");
+            const tournamentTableBody = document.querySelector("#tournamentTable tbody");
+            const tournamentTimerDisplay = document.getElementById("tournamentTimer");
+            const startTournamentBtn = document.getElementById("startTournamentBtn");
+            const resetTournamentBtn = document.getElementById("resetTournamentBtn");
+
+            tournamentForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                if (tournamentStarted) return false;
+                const initials = document.getElementById("tournamentInitials").value.toUpperCase().trim();
+                if (initials) {
+                    tournamentParticipants.push({ initials, finishTime: null });
+                    updateTournamentTable();
+                    tournamentForm.reset();
+                }
+                return false;
+            });
+
+            startTournamentBtn.addEventListener("click", function () {
+                if (tournamentParticipants.length === 0) {
+                    alert("Add at least one participant before starting the tournament.");
+                    return;
+                }
+                if (!tournamentStarted) {
+                    tournamentStarted = true;
+                    tournamentStartTime = Date.now();
+                    tournamentTimerInterval = setInterval(updateTournamentTimer, 100);
+                    // Disable further additions and starting again
+                    tournamentForm.querySelector("button").disabled = true;
+                    startTournamentBtn.disabled = true;
+                    updateTournamentTable(); // refresh to show stop buttons
+                }
+            });
+
+            function updateTournamentTimer() {
+                if (tournamentStarted) {
+                    const elapsed = (Date.now() - tournamentStartTime) / 1000;
+                    tournamentTimerDisplay.textContent = elapsed.toFixed(2);
+                }
+            }
+
+            function updateTournamentTable() {
+                tournamentTableBody.innerHTML = "";
+                tournamentParticipants.forEach((participant, index) => {
+                    const row = document.createElement("tr");
+
+                    const initialsCell = document.createElement("td");
+                    initialsCell.textContent = participant.initials;
+                    row.appendChild(initialsCell);
+
+                    const timeCell = document.createElement("td");
+                    timeCell.textContent = participant.finishTime !== null ? participant.finishTime.toFixed(2) : "-";
+                    row.appendChild(timeCell);
+
+                    const actionCell = document.createElement("td");
+                    if (tournamentStarted && participant.finishTime === null) {
+                        const stopBtn = document.createElement("button");
+                        stopBtn.textContent = "Stop Timer";
+                        stopBtn.className = "stop-btn";
+                        stopBtn.addEventListener("click", function () {
+                            const finishTime = (Date.now() - tournamentStartTime) / 1000;
+                            participant.finishTime = finishTime;
+                            updateTournamentTable();
+                            // Add result to main leaderboard
+                            entries.push({ initials: participant.initials, time: finishTime });
+                            entries.sort((a, b) => a.time - b.time);
+                            updateLeaderboard();
+                            updateAggregatedLeaderboard();
+                            updateLocalStorage();
+                            // If every participant has finished, stop the main tournament timer
+                            if (tournamentParticipants.every((p) => p.finishTime !== null)) {
+                                clearInterval(tournamentTimerInterval);
+                            }
+                        });
+                        actionCell.appendChild(stopBtn);
+                    } else {
+                        actionCell.textContent = "-";
+                    }
+                    row.appendChild(actionCell);
+                    tournamentTableBody.appendChild(row);
+                });
+            }
+
+            // Reset Tournament Button Handler
+            resetTournamentBtn.addEventListener("click", function () {
+                // Stop the timer if it's still running
+                if (tournamentTimerInterval) {
+                    clearInterval(tournamentTimerInterval);
+                }
+                // Reset tournament variables
+                tournamentParticipants = [];
+                tournamentStarted = false;
+                tournamentStartTime = null;
+                tournamentTimerDisplay.textContent = "0.00";
+
+                // Re-enable tournament form and start button
+                tournamentForm.querySelector("button").disabled = false;
+                startTournamentBtn.disabled = false;
+
+                // Clear the tournament table
+                updateTournamentTable();
+            });
+        </script>
+    </body>
+</html>

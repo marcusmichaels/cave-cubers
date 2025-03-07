@@ -209,6 +209,26 @@
                 display: block;
                 margin: 20px auto 0;
             }
+
+            .share-btn {
+                position: fixed;
+                top: 50%;
+                right: -65px;
+                transform: translateY(-50%) rotate(-90deg);
+                border: 0;
+                outline: 0;
+                -webkit-appearance: none;
+                background: black;
+                color: white;
+                padding: 0.6rem 1rem 1.4rem;
+                border-radius: 10px 10px 0px 0px;
+
+                transition: all 0.1s linear;
+                cursor: pointer;
+                &:hover {
+                    right: -60px;
+                }
+            }
         </style>
     </head>
     <body>
@@ -273,6 +293,7 @@
                 <!-- Reset Tournament Button -->
                 <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
             </div>
+            <button class="share-btn" onclick="alert(generateShareableURL())">Share Leaderboard</button>
         </div>
 
         <script>
@@ -500,6 +521,33 @@
                 // Clear the tournament table
                 updateTournamentTable();
             });
+
+            // Call this function to generate a shareable URL with the current leaderboard data.
+            function generateShareableURL() {
+                const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
+                const encoded = btoa(data); // Encode it in base64 for URL compatibility
+                const url = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
+                return url;
+            }
+
+            // Call this function on page load to check for shared data in the URL and load it.
+            function loadSharedData() {
+                const params = new URLSearchParams(window.location.search);
+                if (params.has("data")) {
+                    try {
+                        const decoded = atob(params.get("data"));
+                        const sharedData = JSON.parse(decoded);
+                        // Now update your leaderboard with the shared data
+                        entries = sharedData;
+                        updateLeaderboard();
+                        updateAggregatedLeaderboard();
+                    } catch (err) {
+                        console.error("Failed to load shared data:", err);
+                    }
+                }
+            }
+
+            window.onload = loadSharedData;
         </script>
     </body>
 </html>

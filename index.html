@@ -293,7 +293,7 @@
                 <!-- Reset Tournament Button -->
                 <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
             </div>
-            <button class="share-btn" onclick="alert(generateShareableURL())">Share Leaderboard</button>
+            <button class="share-btn" onclick="copyShareableURL()">Share Leaderboard</button>
         </div>
 
         <script>
@@ -545,6 +545,18 @@
                         console.error("Failed to load shared data:", err);
                     }
                 }
+            }
+
+            function copyShareableURL() {
+                const url = generateShareableURL();
+                navigator.clipboard
+                    .writeText(url)
+                    .then(() => {
+                        alert("URL copied to clipboard!");
+                    })
+                    .catch((err) => {
+                        console.error("Error copying text: ", err);
+                    });
             }
 
             window.onload = loadSharedData;

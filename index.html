@@ -336,7 +336,7 @@
                     entries.sort((a, b) => a.time - b.time);
                     updateLeaderboard();
                     updateAggregatedLeaderboard();
-                    updateLocalStorage();
+                    updateStorage();
                     form.reset();
                 } else {
                     alert("Please enter valid initials and time.");
@@ -364,7 +364,7 @@
                         entries.splice(index, 1);
                         updateLeaderboard();
                         updateAggregatedLeaderboard();
-                        updateLocalStorage();
+                        updateStorage();
                     });
                     actionCell.appendChild(deleteBtn);
                     row.appendChild(actionCell);
@@ -407,8 +407,56 @@
                 });
             }
 
+            // Helper function to generate a UUID (used for a unique user id)
+            function generateUUID() {
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                    const r = Math.random() * 16 | 0;
+                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    return v.toString(16);
+                });
+            }
+
+            // Returns the stored userId or generates a new one if not present.
+            function getAndSetUserId() {
+                let userId = localStorage.getItem('userId');
+                if (!userId) {
+                    userId = generateUUID();
+                    localStorage.setItem('userId', userId);
+                }
+                return userId;
+            }
+
             function updateLocalStorage() {
                 localStorage.setItem("leaderboardEntries", JSON.stringify(entries));
+                getAndSetUserId();
+            }
+
+            function updateStorage() {
+                updateLocalStorage();
+
+                const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
+                const encodedData = btoa(data); // Encode it in base64 for URL compatibility
+
+                const userId = getAndSetUserId();
+
+                return fetch('https://lambdas-black.vercel.app/api/cavecubers', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, encodedData })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                    throw new Error('Failed to save leaderboard data.');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Leaderboard saved:", data);
+                    return data;
+                })
+                .catch(err => {
+                    console.error("Error saving leaderboard:", err);
+                });
             }
 
             // --------------------
@@ -487,7 +535,7 @@
                             entries.sort((a, b) => a.time - b.time);
                             updateLeaderboard();
                             updateAggregatedLeaderboard();
-                            updateLocalStorage();
+                            updateStorage();
                             // If every participant has finished, stop the main tournament timer
                             if (tournamentParticipants.every((p) => p.finishTime !== null)) {
                                 clearInterval(tournamentTimerInterval);

@@ -437,12 +437,12 @@
                 const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
                 const encodedData = btoa(data); // Encode it in base64 for URL compatibility
 
-                const userId = getAndSetUserId();
+                const uuid = getAndSetUserId();
 
                 return fetch('https://lambdas-black.vercel.app/api/cavecubers', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, encodedData })
+                    body: JSON.stringify({ uuid, encodedData })
                 })
                 .then(response => {
                     if (!response.ok) {
@@ -592,6 +592,31 @@
                     } catch (err) {
                         console.error("Failed to load shared data:", err);
                     }
+                } else {
+                const uuid = getAndSetUserId();
+
+                return fetch(`https://lambdas-black.vercel.app/api/cavecubers?uuid=${uuid}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load leaderboard data.');
+                    }
+                    return response.json();
+                })
+                .then(res => {
+                    const decoded = atob(res.data.encodedData);
+                    const sharedData = JSON.parse(decoded);
+
+                    entries = sharedData;
+                    
+                    updateLeaderboard();
+                    updateAggregatedLeaderboard();
+                   
+                    console.log("Leaderboard loaded:", res.data);
+                    return res;
+                })
+                .catch(err => {
+                    console.error("Error loading leaderboard:", err);
+                });
                 }
             }
 

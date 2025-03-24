@@ -1,690 +1,94 @@
 <!doctype html>
 <html>
-    <head>
-        <meta charset="UTF-8" />
-        <title>Speedcube Championship Leaderboard</title>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
-        <style>
-            :root {
-                --accent-color: #ff4500;
-                --text-color: #333;
-                --container-bg: #ffffff;
-                --border-color: #ddd;
-                --hover-bg: #ffece6;
-            }
 
-            /* Animated gradient background */
-            @keyframes gradientAnimation {
-                0% {
-                    background-position: 0% 50%;
-                }
-                50% {
-                    background-position: 100% 50%;
-                }
-                100% {
-                    background-position: 0% 50%;
-                }
-            }
+<head>
+  <meta charset="UTF-8" />
+  <title>Speedcube Championship Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+  <header class="bg-rainbow">
+    <h1 class="logo silkscreen-regular">Cave Cubers Leaderboard</h1>
+    <button class="share-btn" onclick="copyShareableURL()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960" fill-color="currentColor">
+        <path
+          d="M240-40q-33 0-56.5-23.5T160-120v-440q0-33 23.5-56.5T240-640h120v80H240v440h480v-440H600v-80h120q33 0 56.5 23.5T800-560v440q0 33-23.5 56.5T720-40zm200-280v-447l-64 64-56-57 160-160 160 160-56 57-64-64v447z" />
+      </svg>
+    </button>
+  </header>
+
+  <section class="main-timer-container silkscreen-regular">
+    <button id="main-timer-btn" class="main-timer" onclick="startMainTimer()">0.00</button>
+  </section>
+
+  <section class="entry-form">
+    <form id="entryForm">
+      <input type="text" id="initials" placeholder="Initials" required maxlength="4" />
+      <input type="text" id="time" placeholder="Time" required />
+      <button type="submit">Add score</button>
+    </form>
+  </section>
+
+  <section class="scramble-container silkscreen-regular">
+    <p id="scramble" class="scramble-text">...</p>
+  </section>
+
+
+
+  <section id="leaderboard" class="silkscreen-regular">
+    <ul class="leaderboard-entries">
+      <!-- Leaderboard entries will appear here -->
+    </ul>
+  </section>
+
+  <div class="container">
+    <!-- TODO: style the rest of this -->
+    <!-- Tournament Mode Section -->
+    <h2>Tournament Mode</h2>
+    <div id="tournamentSection">
+      <div class="tournament-timer">Main Timer: <span id="tournamentTimer">0.00</span> s</div>
+      <div id="tournamentControls">
+        <form id="tournamentForm">
+          <input type="text" id="tournamentInitials" placeholder="Initials" required maxlength="3" />
+          <button type="submit">Add Participant</button>
+        </form>
+        <button id="startTournamentBtn">Start Tournament</button>
+      </div>
+      <table id="tournamentTable">
+        <thead>
+          <tr>
+            <th>Initials</th>
+            <th>Finish Time (s)</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Tournament participants will appear here -->
+        </tbody>
+      </table>
+      <!-- Reset Tournament Button -->
+      <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
+    </div>
+
+    <!-- Aggregated Leaderboard -->
+    <h2>Average Times By Initials</h2>
+    <table id="aggregatedLeaderboard">
+      <thead>
+        <tr>
+          <th>Initials</th>
+          <th>Average Time (s)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Aggregated entries will appear here -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="main.js"></script>
+</body>
 
-            /* Header hue animation for extra flair */
-            @keyframes hueAnimation {
-                from {
-                    filter: hue-rotate(0deg);
-                }
-                to {
-                    filter: hue-rotate(360deg);
-                }
-            }
-
-            body {
-                margin: 0;
-                padding: 0;
-                font-family: "Montserrat", sans-serif;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                background: linear-gradient(45deg, #ff0000, #ffa500, #ffff00, #008000, #0000ff, #4b0082, #ee82ee);
-                background-size: 400% 400%;
-                animation: gradientAnimation 15s ease infinite;
-            }
-
-            .container {
-                width: 90%;
-                max-width: 800px;
-                background: var(--container-bg);
-                border: 2px solid var(--border-color);
-                border-radius: 12px;
-                padding: 30px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-                margin: 20px;
-            }
-
-            h1,
-            h2 {
-                text-align: center;
-                margin-bottom: 20px;
-                animation: hueAnimation 10s infinite linear;
-            }
-
-            h1 {
-                color: var(--accent-color);
-                font-size: 2.5em;
-            }
-
-            h2 {
-                color: var(--accent-color);
-                font-size: 1.8em;
-                margin-top: 40px;
-            }
-
-            form {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            form input[type="text"] {
-                padding: 12px;
-                font-size: 1.1em;
-                width: 120px;
-                border: 1px solid var(--border-color);
-                border-radius: 6px;
-                background: #f9f9f9;
-                color: var(--text-color);
-                outline: none;
-                transition:
-                    border-color 0.3s,
-                    box-shadow 0.3s;
-            }
-
-            form input[type="text"]:focus {
-                border-color: var(--accent-color);
-                box-shadow: 0 0 8px var(--accent-color);
-            }
-
-            form button {
-                padding: 12px 20px;
-                font-size: 1.1em;
-                border: none;
-                border-radius: 6px;
-                background-color: var(--accent-color);
-                color: #fff;
-                cursor: pointer;
-                transition:
-                    background-color 0.3s,
-                    transform 0.2s;
-            }
-
-            form button:hover {
-                background-color: #e63900;
-                transform: scale(1.05);
-            }
-
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 10px;
-            }
-
-            table thead {
-                background: var(--accent-color);
-            }
-
-            table th,
-            table td {
-                padding: 12px;
-                text-align: center;
-                border: 1px solid var(--border-color);
-            }
-
-            table th {
-                font-size: 1.1em;
-                color: #fff;
-            }
-
-            table tbody tr {
-                background: #fff;
-                transition: background 0.3s;
-            }
-
-            table tbody tr:hover {
-                background: var(--hover-bg);
-            }
-
-            .delete-btn,
-            .stop-btn,
-            .reset-btn {
-                padding: 4px 8px;
-                font-size: 0.9em;
-                border: none;
-                border-radius: 4px;
-                background-color: #ff4d4d;
-                color: #fff;
-                cursor: pointer;
-                transition: background-color 0.3s;
-            }
-
-            .delete-btn:hover,
-            .stop-btn:hover,
-            .reset-btn:hover {
-                background-color: #e60000;
-            }
-
-            /* Tournament mode section */
-            #tournamentSection {
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 2px dashed var(--border-color);
-            }
-
-            .tournament-timer {
-                text-align: center;
-                font-size: 1.4em;
-                margin-bottom: 20px;
-            }
-
-            #tournamentControls {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-                margin-bottom: 20px;
-            }
-
-            #tournamentControls form {
-                flex: 1 1 auto;
-                max-width: 250px;
-            }
-
-            #tournamentControls button {
-                flex: 1 1 auto;
-                max-width: 150px;
-            }
-
-            /* Reset button styling */
-            #resetTournamentBtn {
-                display: block;
-                margin: 20px auto 0;
-            }
-
-            .share-btn {
-                position: fixed;
-                top: 50%;
-                right: -65px;
-                transform: translateY(-50%) rotate(-90deg);
-                border: 0;
-                outline: 0;
-                -webkit-appearance: none;
-                background: black;
-                color: white;
-                padding: 0.6rem 1rem 1.4rem;
-                border-radius: 10px 10px 0px 0px;
-
-                transition: all 0.1s linear;
-                cursor: pointer;
-                &:hover {
-                    right: -60px;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <!-- Main Leaderboard Section -->
-            <h1>Cave Cubers Championship Leaderboard</h1>
-            <form id="entryForm">
-                <input type="text" id="initials" placeholder="Initials" required maxlength="3" />
-                <input type="text" id="time" placeholder="Time (s or mm:ss)" required />
-                <button type="submit">Submit</button>
-            </form>
-            <table id="leaderboard">
-                <thead>
-                    <tr>
-                        <th>Initials</th>
-                        <th>Time (s)</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Leaderboard entries will appear here -->
-                </tbody>
-            </table>
-
-            <!-- Aggregated Leaderboard -->
-            <h2>Average Times By Initials</h2>
-            <table id="aggregatedLeaderboard">
-                <thead>
-                    <tr>
-                        <th>Initials</th>
-                        <th>Average Time (s)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Aggregated entries will appear here -->
-                </tbody>
-            </table>
-
-            <!-- Tournament Mode Section -->
-            <h2>Tournament Mode</h2>
-            <div id="tournamentSection">
-                <div class="tournament-timer">Main Timer: <span id="tournamentTimer">0.00</span> s</div>
-                <div id="tournamentControls">
-                    <form id="tournamentForm">
-                        <input type="text" id="tournamentInitials" placeholder="Initials" required maxlength="3" />
-                        <button type="submit">Add Participant</button>
-                    </form>
-                    <button id="startTournamentBtn">Start Tournament</button>
-                </div>
-                <table id="tournamentTable">
-                    <thead>
-                        <tr>
-                            <th>Initials</th>
-                            <th>Finish Time (s)</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Tournament participants will appear here -->
-                    </tbody>
-                </table>
-                <!-- Reset Tournament Button -->
-                <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
-            </div>
-            <button class="share-btn" onclick="copyShareableURL()">Share Leaderboard</button>
-        </div>
-
-        <script>
-            // --------------------
-            // Main Leaderboard Code
-            // --------------------
-            let entries = JSON.parse(localStorage.getItem("leaderboardEntries")) || [];
-
-            const form = document.getElementById("entryForm");
-            const leaderboardBody = document.querySelector("#leaderboard tbody");
-            const aggregatedBody = document.querySelector("#aggregatedLeaderboard tbody");
-
-            updateLeaderboard();
-            updateAggregatedLeaderboard();
-
-            form.addEventListener("submit", function (event) {
-                event.preventDefault();
-                const initialsInput = document.getElementById("initials");
-                const timeInput = document.getElementById("time");
-                const initials = initialsInput.value.toUpperCase().trim();
-                const timeValue = timeInput.value.trim();
-                let time = 0;
-
-                // Parse time as "mm:ss" or seconds
-                if (timeValue.includes(":")) {
-                    const parts = timeValue.split(":");
-                    if (parts.length === 2) {
-                        const minutes = parseFloat(parts[0]);
-                        const seconds = parseFloat(parts[1]);
-                        if (!isNaN(minutes) && !isNaN(seconds)) {
-                            time = minutes * 60 + seconds;
-                        }
-                    }
-                } else {
-                    time = parseFloat(timeValue);
-                }
-
-                if (initials && !isNaN(time) && time > 0) {
-                    entries.push({ initials, time });
-                    entries.sort((a, b) => a.time - b.time);
-                    updateLeaderboard();
-                    updateAggregatedLeaderboard();
-                    updateStorage();
-                    form.reset();
-                } else {
-                    alert("Please enter valid initials and time.");
-                }
-            });
-
-            function updateLeaderboard() {
-                leaderboardBody.innerHTML = "";
-                entries.forEach((entry, index) => {
-                    const row = document.createElement("tr");
-
-                    const initialsCell = document.createElement("td");
-                    initialsCell.textContent = entry.initials;
-                    row.appendChild(initialsCell);
-
-                    const timeCell = document.createElement("td");
-                    timeCell.textContent = entry.time.toFixed(2);
-                    row.appendChild(timeCell);
-
-                    const actionCell = document.createElement("td");
-                    const deleteBtn = document.createElement("button");
-                    deleteBtn.textContent = "Delete";
-                    deleteBtn.className = "delete-btn";
-                    deleteBtn.addEventListener("click", () => {
-                        entries.splice(index, 1);
-                        updateLeaderboard();
-                        updateAggregatedLeaderboard();
-                        updateStorage();
-                    });
-                    actionCell.appendChild(deleteBtn);
-                    row.appendChild(actionCell);
-
-                    leaderboardBody.appendChild(row);
-                });
-            }
-
-            function updateAggregatedLeaderboard() {
-                const aggregated = {};
-                entries.forEach((entry) => {
-                    if (aggregated[entry.initials]) {
-                        aggregated[entry.initials].sum += entry.time;
-                        aggregated[entry.initials].count++;
-                    } else {
-                        aggregated[entry.initials] = { sum: entry.time, count: 1 };
-                    }
-                });
-
-                const aggregatedData = Object.keys(aggregated).map((initials) => ({
-                    initials,
-                    avgTime: aggregated[initials].sum / aggregated[initials].count,
-                }));
-
-                aggregatedData.sort((a, b) => a.avgTime - b.avgTime);
-
-                aggregatedBody.innerHTML = "";
-                aggregatedData.forEach((item) => {
-                    const row = document.createElement("tr");
-
-                    const initialsCell = document.createElement("td");
-                    initialsCell.textContent = item.initials;
-                    row.appendChild(initialsCell);
-
-                    const avgTimeCell = document.createElement("td");
-                    avgTimeCell.textContent = item.avgTime.toFixed(2);
-                    row.appendChild(avgTimeCell);
-
-                    aggregatedBody.appendChild(row);
-                });
-            }
-
-            // Helper function to generate a UUID (used for a unique user id)
-            function generateUUID() {
-                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-                    const r = (Math.random() * 16) | 0;
-                    const v = c === "x" ? r : (r & 0x3) | 0x8;
-                    return v.toString(16);
-                });
-            }
-
-            // Returns the stored userId or generates a new one if not present.
-            function getAndSetUserId(uuid) {
-                let userId = localStorage.getItem("userId");
-
-                if (uuid && uuid !== userId) {
-                    userId = uuid;
-                    localStorage.setItem("userId", userId);
-                } else {
-                    if (!userId) {
-                        userId = generateUUID();
-                        localStorage.setItem("userId", userId);
-                    }
-                }
-
-                return userId;
-            }
-
-            function updateLocalStorage() {
-                localStorage.setItem("leaderboardEntries", JSON.stringify(entries));
-                getAndSetUserId();
-            }
-
-            function updateStorage() {
-                updateLocalStorage();
-
-                const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
-                const encodedData = btoa(data); // Encode it in base64 for URL compatibility
-
-                const uuid = getAndSetUserId();
-
-                return fetch("https://lambdas-black.vercel.app/api/cavecubers", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ uuid, encodedData }),
-                })
-                    .then((response) => {
-                        if (!response.ok) {
-                            throw new Error("Failed to save leaderboard data.");
-                        }
-                        return response.json();
-                    })
-                    .then((data) => {
-                        console.log("Leaderboard saved:", data);
-                        return data;
-                    })
-                    .catch((err) => {
-                        console.error("Error saving leaderboard:", err);
-                    });
-            }
-
-            // --------------------
-            // Tournament Mode Code
-            // --------------------
-            let tournamentParticipants = [];
-            let tournamentStarted = false;
-            let tournamentStartTime = null;
-            let tournamentTimerInterval = null;
-
-            const tournamentForm = document.getElementById("tournamentForm");
-            const tournamentTableBody = document.querySelector("#tournamentTable tbody");
-            const tournamentTimerDisplay = document.getElementById("tournamentTimer");
-            const startTournamentBtn = document.getElementById("startTournamentBtn");
-            const resetTournamentBtn = document.getElementById("resetTournamentBtn");
-
-            tournamentForm.addEventListener("submit", function (e) {
-                e.preventDefault();
-                if (tournamentStarted) return false;
-                const initials = document.getElementById("tournamentInitials").value.toUpperCase().trim();
-                if (initials) {
-                    tournamentParticipants.push({ initials, finishTime: null });
-                    updateTournamentTable();
-                    tournamentForm.reset();
-                }
-                return false;
-            });
-
-            startTournamentBtn.addEventListener("click", function () {
-                if (tournamentParticipants.length === 0) {
-                    alert("Add at least one participant before starting the tournament.");
-                    return;
-                }
-                if (!tournamentStarted) {
-                    tournamentStarted = true;
-                    tournamentStartTime = Date.now();
-                    tournamentTimerInterval = setInterval(updateTournamentTimer, 100);
-                    // Disable further additions and starting again
-                    tournamentForm.querySelector("button").disabled = true;
-                    startTournamentBtn.disabled = true;
-                    updateTournamentTable(); // refresh to show stop buttons
-                }
-            });
-
-            function updateTournamentTimer() {
-                if (tournamentStarted) {
-                    const elapsed = (Date.now() - tournamentStartTime) / 1000;
-                    tournamentTimerDisplay.textContent = elapsed.toFixed(2);
-                }
-            }
-
-            function updateTournamentTable() {
-                tournamentTableBody.innerHTML = "";
-                tournamentParticipants.forEach((participant, index) => {
-                    const row = document.createElement("tr");
-
-                    const initialsCell = document.createElement("td");
-                    initialsCell.textContent = participant.initials;
-                    row.appendChild(initialsCell);
-
-                    const timeCell = document.createElement("td");
-                    timeCell.textContent = participant.finishTime !== null ? participant.finishTime.toFixed(2) : "-";
-                    row.appendChild(timeCell);
-
-                    const actionCell = document.createElement("td");
-                    if (tournamentStarted && participant.finishTime === null) {
-                        const stopBtn = document.createElement("button");
-                        stopBtn.textContent = "Stop Timer";
-                        stopBtn.className = "stop-btn";
-                        stopBtn.addEventListener("click", function () {
-                            const finishTime = (Date.now() - tournamentStartTime) / 1000;
-                            participant.finishTime = finishTime;
-                            updateTournamentTable();
-                            // Add result to main leaderboard
-                            entries.push({ initials: participant.initials, time: finishTime });
-                            entries.sort((a, b) => a.time - b.time);
-                            updateLeaderboard();
-                            updateAggregatedLeaderboard();
-                            updateStorage();
-                            // If every participant has finished, stop the main tournament timer
-                            if (tournamentParticipants.every((p) => p.finishTime !== null)) {
-                                clearInterval(tournamentTimerInterval);
-                            }
-                        });
-                        actionCell.appendChild(stopBtn);
-                    } else {
-                        actionCell.textContent = "-";
-                    }
-                    row.appendChild(actionCell);
-                    tournamentTableBody.appendChild(row);
-                });
-            }
-
-            // Reset Tournament Button Handler
-            resetTournamentBtn.addEventListener("click", function () {
-                // Stop the timer if it's still running
-                if (tournamentTimerInterval) {
-                    clearInterval(tournamentTimerInterval);
-                }
-                // Reset tournament variables
-                tournamentParticipants = [];
-                tournamentStarted = false;
-                tournamentStartTime = null;
-                tournamentTimerDisplay.textContent = "0.00";
-
-                // Re-enable tournament form and start button
-                tournamentForm.querySelector("button").disabled = false;
-                startTournamentBtn.disabled = false;
-
-                // Clear the tournament table
-                updateTournamentTable();
-            });
-
-            // Call this function to generate a shareable URL with the current leaderboard data.
-            function generateShareableURL() {
-                // const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
-                // const encoded = btoa(data); // Encode it in base64 for URL compatibility
-                const uuid = getAndSetUserId();
-                const url = `${window.location.origin}${window.location.pathname}?uuid=${uuid}`;
-                return url;
-            }
-
-            // Call this function on page load to check for shared data in the URL and load it.
-            function loadSharedData() {
-                const params = new URLSearchParams(window.location.search);
-                if (params.has("data")) {
-                    try {
-                        const decoded = atob(params.get("data"));
-                        const sharedData = JSON.parse(decoded);
-                        // Now update your leaderboard with the shared data
-                        entries = sharedData;
-                        updateLeaderboard();
-                        updateAggregatedLeaderboard();
-                    } catch (err) {
-                        console.error("Failed to load shared data:", err);
-                    }
-                } else {
-                    const uuid = params.has("uuid") ? getAndSetUserId(params.get("uuid")) : getAndSetUserId();
-
-                    console.log(uuid);
-
-                    return fetch(`https://lambdas-black.vercel.app/api/cavecubers?uuid=${uuid}`)
-                        .then((response) => {
-                            if (!response.ok) {
-                                throw new Error("Failed to load leaderboard data.");
-                            }
-                            return response.json();
-                        })
-                        .then((res) => {
-                            const decoded = atob(res.data.encodedData);
-                            const sharedData = JSON.parse(decoded);
-
-                            entries = sharedData;
-
-                            updateLeaderboard();
-                            updateAggregatedLeaderboard();
-
-                            console.log("Leaderboard loaded:", res.data);
-                            return res;
-                        })
-                        .catch((err) => {
-                            console.error("Error loading leaderboard:", err);
-                        });
-                }
-            }
-
-            function copyShareableURL() {
-                const url = generateShareableURL();
-                navigator.clipboard
-                    .writeText(url)
-                    .then(() => {
-                        alert("URL copied to clipboard!");
-                    })
-                    .catch((err) => {
-                        console.error("Error copying text: ", err);
-                    });
-            }
-
-            function generateScramble() {
-                // Define the six face moves.
-                const moves = ["U", "D", "L", "R", "F", "B"];
-
-                // Group moves into axes: U/D, L/R, and F/B.
-                const groups = {
-                    U: "UD",
-                    D: "UD",
-                    L: "LR",
-                    R: "LR",
-                    F: "FB",
-                    B: "FB",
-                };
-
-                const scrambleLength = 25; // Standard WCA scramble length for 3x3.
-                const scramble = [];
-                let previousMove = null;
-
-                for (let i = 0; i < scrambleLength; i++) {
-                    // Filter out moves that are on the same axis as the previous move.
-                    const possibleMoves = moves.filter((move) => {
-                        return !previousMove || groups[move] !== groups[previousMove];
-                    });
-
-                    // Randomly select one move from the allowed moves.
-                    const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-
-                    // Randomly choose a modifier: 90° (nothing), 180° ("2"), or counterclockwise (apostrophe).
-                    const modifiers = ["", "'", "2"];
-                    const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
-
-                    scramble.push(move + modifier);
-                    previousMove = move;
-                }
-
-                return scramble.join(" ");
-            }
-
-            function initEverything() {
-                loadSharedData();
-                // add generate scramble here
-            }
-            window.onload = initEverything;
-        </script>
-    </body>
 </html>

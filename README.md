@@ -1,2 +1,2 @@
 # cave-cubers
-A leaderboard built entirely with AI
+Vibe-coded leaderboard that a human decided to build upon.

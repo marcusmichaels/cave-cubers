@@ -1,0 +1,343 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
+
+:root {
+  --accent-color: #00b23e;
+  --text-color: #ffffff;
+  --border-color: black;
+  --hover-bg: #ffece6;
+}
+
+/* Animated gradient background */
+@keyframes gradientAnimation {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Header hue animation for extra flair */
+@keyframes hueAnimation {
+  from {
+    filter: hue-rotate(0deg);
+  }
+
+  to {
+    filter: hue-rotate(360deg);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Montserrat", sans-serif;
+  min-width: 340px;
+}
+
+.bg-rainbow {
+  background: linear-gradient(45deg, #ff0000, #ffa500, #ffff00, #008000, #0000ff, #4b0082, #ee82ee);
+  background-size: 400% 400%;
+  animation: gradientAnimation 15s ease infinite;
+}
+
+.silkscreen-regular {
+  font-family: "Silkscreen", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.silkscreen-bold {
+  font-family: "Silkscreen", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
+
+header {
+  display: flex;
+  border-bottom: 1px solid black;
+  color: black;
+  text-shadow: 1px 1px white, -1px -1px white, 1px -1px white, -1px 1px white;
+  background-color: rgba(0, 0, 0, 0.475);
+  backdrop-filter: blur(40px);
+  position: sticky;
+  top: 0;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.logo {
+  font-size: 16px;
+  margin: 0;
+  padding: 0 1rem;
+}
+
+.share-btn {
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background: black;
+  transition: all 0.1s linear;
+  cursor: pointer;
+  padding: 1rem 1.2rem;
+
+  svg {
+    fill: white;
+  }
+
+  &:focus,
+  &:hover {
+    background: var(--accent-color);
+  }
+}
+
+.main-timer-container {
+  margin-top: 1rem;
+}
+
+.main-timer {
+  all: inherit;
+  display: block;
+  text-align: left;
+  cursor: pointer;
+  font-size: 5rem;
+  min-width: 300px;
+  text-align: center;
+  margin: auto;
+
+  transition: color 0.2s linear;
+
+  &:focus,
+  &:hover {
+    color: var(--accent-color);
+  }
+}
+
+.leaderboard-entries {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: center;
+  border-top: 1px solid var(--accent-color);
+  font-size: 1rem;
+}
+
+@media (min-width:440px) {
+  .leaderboard-entries {
+    font-size: 1.4rem;
+  }
+}
+
+@media (min-width:660px) {
+  .leaderboard-entries {
+    font-size: 1.8rem;
+  }
+}
+
+.leaderboard-entry {
+  border-bottom: 1px solid var(--accent-color);
+
+  span {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    width: 6.25em;
+    margin-top: 0.3rem;
+    margin-bottom: 0.5rem;
+    text-align: center;
+  }
+
+  .delete-btn {
+    position: absolute;
+    left: 0;
+    display: none;
+  }
+
+  &:hover {
+    .delete-btn {
+      display: inline-block;
+    }
+  }
+}
+
+.scramble-container {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.entry-form {
+  margin-top: 2rem;
+  padding: 0 1rem 1rem;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 90%;
+  max-width: 800px;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  margin: 100px auto 20px;
+}
+
+h1,
+h2 {
+  margin-bottom: 20px;
+  animation: hueAnimation 10s infinite linear;
+}
+
+h1 {
+  color: var(--accent-color);
+  font-size: 2.5em;
+}
+
+h2 {
+  color: var(--accent-color);
+  font-size: 1.8em;
+  margin-top: 0;
+}
+
+form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+form input[type="text"] {
+  font-size: 1rem;
+  width: 120px;
+  border: unset;
+  border-bottom: 4px solid black;
+  font-family: "Silkscreen", sans-serif;
+  outline: none;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
+}
+
+form input[type="text"]:focus {
+  border-color: var(--accent-color);
+}
+
+form button {
+  all: unset;
+  font-family: "Silkscreen", sans-serif;
+  padding: 12px 20px;
+  font-size: 1rem;
+  border: none;
+  background-color: black;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s linear;
+
+  &:focus,
+  &:hover {
+    background-color: var(--accent-color);
+  }
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+table thead {
+  background: var(--accent-color);
+}
+
+table th,
+table td {
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+table th {
+  font-size: 1.1em;
+  color: #fff;
+}
+
+table tbody tr {
+  background: #fff;
+  transition: background 0.3s;
+}
+
+table tbody tr:hover {
+  background: var(--hover-bg);
+}
+
+.delete-btn,
+.stop-btn,
+.reset-btn {
+  font-family: "Silkscreen", sans-serif;
+  padding: 1px 6px 4px;
+  font-size: 0.9em;
+  border: none;
+  border-radius: 4px;
+  background-color: #ff4d4d;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-btn:hover,
+.stop-btn:hover,
+.reset-btn:hover {
+  background-color: #e60000;
+}
+
+/* Tournament mode section */
+#tournamentSection {
+  padding-top: 20px;
+  padding-bottom: 40px;
+  border-top: 2px dashed var(--border-color);
+}
+
+.tournament-timer {
+  text-align: center;
+  font-size: 1.4em;
+  margin-bottom: 20px;
+}
+
+#tournamentControls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#tournamentControls form {
+  flex: 1 1 auto;
+  max-width: 250px;
+}
+
+#tournamentControls button {
+  flex: 1 1 auto;
+  max-width: 150px;
+}
+
+/* Reset button styling */
+#resetTournamentBtn {
+  display: block;
+  margin: 20px auto 0;
+}

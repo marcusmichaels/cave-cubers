@@ -409,24 +409,24 @@
 
             // Helper function to generate a UUID (used for a unique user id)
             function generateUUID() {
-                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-                    const r = Math.random() * 16 | 0;
-                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+                    const r = (Math.random() * 16) | 0;
+                    const v = c === "x" ? r : (r & 0x3) | 0x8;
                     return v.toString(16);
                 });
             }
 
             // Returns the stored userId or generates a new one if not present.
             function getAndSetUserId(uuid) {
-                let userId = localStorage.getItem('userId');
+                let userId = localStorage.getItem("userId");
 
                 if (uuid && uuid !== userId) {
                     userId = uuid;
-                    localStorage.setItem('userId', userId);
+                    localStorage.setItem("userId", userId);
                 } else {
                     if (!userId) {
                         userId = generateUUID();
-                        localStorage.setItem('userId', userId);
+                        localStorage.setItem("userId", userId);
                     }
                 }
 
@@ -446,24 +446,24 @@
 
                 const uuid = getAndSetUserId();
 
-                return fetch('https://lambdas-black.vercel.app/api/cavecubers', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ uuid, encodedData })
+                return fetch("https://lambdas-black.vercel.app/api/cavecubers", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ uuid, encodedData }),
                 })
-                .then(response => {
-                    if (!response.ok) {
-                    throw new Error('Failed to save leaderboard data.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("Leaderboard saved:", data);
-                    return data;
-                })
-                .catch(err => {
-                    console.error("Error saving leaderboard:", err);
-                });
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error("Failed to save leaderboard data.");
+                        }
+                        return response.json();
+                    })
+                    .then((data) => {
+                        console.log("Leaderboard saved:", data);
+                        return data;
+                    })
+                    .catch((err) => {
+                        console.error("Error saving leaderboard:", err);
+                    });
             }
 
             // --------------------
@@ -601,32 +601,32 @@
                         console.error("Failed to load shared data:", err);
                     }
                 } else {
-                const uuid = params.has("uuid") ? getAndSetUserId(params.get("uuid")) : getAndSetUserId();
+                    const uuid = params.has("uuid") ? getAndSetUserId(params.get("uuid")) : getAndSetUserId();
 
-                console.log(uuid);
+                    console.log(uuid);
 
-                return fetch(`https://lambdas-black.vercel.app/api/cavecubers?uuid=${uuid}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Failed to load leaderboard data.');
-                    }
-                    return response.json();
-                })
-                .then(res => {
-                    const decoded = atob(res.data.encodedData);
-                    const sharedData = JSON.parse(decoded);
+                    return fetch(`https://lambdas-black.vercel.app/api/cavecubers?uuid=${uuid}`)
+                        .then((response) => {
+                            if (!response.ok) {
+                                throw new Error("Failed to load leaderboard data.");
+                            }
+                            return response.json();
+                        })
+                        .then((res) => {
+                            const decoded = atob(res.data.encodedData);
+                            const sharedData = JSON.parse(decoded);
 
-                    entries = sharedData;
-                    
-                    updateLeaderboard();
-                    updateAggregatedLeaderboard();
-                   
-                    console.log("Leaderboard loaded:", res.data);
-                    return res;
-                })
-                .catch(err => {
-                    console.error("Error loading leaderboard:", err);
-                });
+                            entries = sharedData;
+
+                            updateLeaderboard();
+                            updateAggregatedLeaderboard();
+
+                            console.log("Leaderboard loaded:", res.data);
+                            return res;
+                        })
+                        .catch((err) => {
+                            console.error("Error loading leaderboard:", err);
+                        });
                 }
             }
 
@@ -642,7 +642,49 @@
                     });
             }
 
-            window.onload = loadSharedData;
+            function generateScramble() {
+                // Define the six face moves.
+                const moves = ["U", "D", "L", "R", "F", "B"];
+
+                // Group moves into axes: U/D, L/R, and F/B.
+                const groups = {
+                    U: "UD",
+                    D: "UD",
+                    L: "LR",
+                    R: "LR",
+                    F: "FB",
+                    B: "FB",
+                };
+
+                const scrambleLength = 25; // Standard WCA scramble length for 3x3.
+                const scramble = [];
+                let previousMove = null;
+
+                for (let i = 0; i < scrambleLength; i++) {
+                    // Filter out moves that are on the same axis as the previous move.
+                    const possibleMoves = moves.filter((move) => {
+                        return !previousMove || groups[move] !== groups[previousMove];
+                    });
+
+                    // Randomly select one move from the allowed moves.
+                    const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+
+                    // Randomly choose a modifier: 90° (nothing), 180° ("2"), or counterclockwise (apostrophe).
+                    const modifiers = ["", "'", "2"];
+                    const modifier = modifiers[Math.floor(Math.random() * modifiers.length)];
+
+                    scramble.push(move + modifier);
+                    previousMove = move;
+                }
+
+                return scramble.join(" ");
+            }
+
+            function initEverything() {
+                loadSharedData();
+                // add generate scramble here
+            }
+            window.onload = initEverything;
         </script>
     </body>
 </html>

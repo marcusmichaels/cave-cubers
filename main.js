@@ -7,6 +7,7 @@ const form = document.getElementById("entryForm");
 const leaderboardBody = document.querySelector("#leaderboard ul");
 const aggregatedBody = document.querySelector("#aggregatedLeaderboard tbody");
 const scrambleBody = document.querySelector('#scramble');
+const timeInput = document.getElementById("time");
 
 updateLeaderboard();
 updateAggregatedLeaderboard();
@@ -14,7 +15,6 @@ updateAggregatedLeaderboard();
 form.addEventListener("submit", function (event) {
   event.preventDefault();
   const initialsInput = document.getElementById("initials");
-  const timeInput = document.getElementById("time");
   const initials = initialsInput.value.toUpperCase().trim();
   const timeValue = timeInput.value.trim();
   let time = 0;
@@ -81,37 +81,6 @@ function updateLeaderboard() {
     leaderboardBody.appendChild(row);
   });
 }
-
-
-// function updateLeaderboard() {
-//   leaderboardBody.innerHTML = "";
-//   entries.forEach((entry, index) => {
-//     const row = document.createElement("tr");
-
-//     const initialsCell = document.createElement("td");
-//     initialsCell.textContent = entry.initials;
-//     row.appendChild(initialsCell);
-
-//     const timeCell = document.createElement("td");
-//     timeCell.textContent = entry.time.toFixed(2);
-//     row.appendChild(timeCell);
-
-//     const actionCell = document.createElement("td");
-//     const deleteBtn = document.createElement("button");
-//     deleteBtn.textContent = "Delete";
-//     deleteBtn.className = "delete-btn";
-//     deleteBtn.addEventListener("click", () => {
-//       entries.splice(index, 1);
-//       updateLeaderboard();
-//       updateAggregatedLeaderboard();
-//       updateStorage();
-//     });
-//     actionCell.appendChild(deleteBtn);
-//     row.appendChild(actionCell);
-
-//     leaderboardBody.appendChild(row);
-//   });
-// }
 
 function updateAggregatedLeaderboard() {
   const aggregated = {};
@@ -232,6 +201,7 @@ const updateMainTimer = () => {
   if (mainTimerStarted) {
     const elapsed = (Date.now() - mainTimerStartTime) / 1000;
     startMainTimerBtn.textContent = elapsed.toFixed(2);
+    timeInput.value = elapsed.toFixed(2);
   }
 }
 

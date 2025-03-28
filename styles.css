@@ -82,6 +82,23 @@ header {
   padding: 0 1rem;
 }
 
+.scramble-btn {
+  all: inherit;
+  padding:0;
+  margin:0;
+  display: inline-block;
+  vertical-align: bottom;
+  line-height: 0;
+  cursor: pointer;
+
+  &:focus,
+  &:hover {
+    svg {
+      fill: var(--accent-color);
+    }
+  }
+}
+
 .share-btn {
   border: 0;
   outline: 0;
@@ -129,9 +146,9 @@ header {
   list-style: none;
   text-align: center;
   font-size: 1rem;
-  border-top:2px solid var(--accent-color);
-  border-bottom:2px solid var(--accent-color);
-  
+  border-top: 2px solid var(--accent-color);
+  border-bottom: 2px solid var(--accent-color);
+
   max-height: 528px;
   overflow-y: scroll;
 }
@@ -150,9 +167,11 @@ header {
 
 .leaderboard-entry {
   border-bottom: 1px solid var(--accent-color);
+
   &:last-of-type {
     border-bottom: none;
   }
+
   span {
     position: relative;
     display: inline-block;

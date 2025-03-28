@@ -2,6 +2,7 @@
 // Main Leaderboard Code
 // --------------------
 let entries = JSON.parse(localStorage.getItem("leaderboardEntries")) || [];
+let scramble = localStorage.getItem("leaderboardScramble") || localStorage.setItem("leaderboardScramble", generateScramble());
 
 const form = document.getElementById("entryForm");
 const leaderboardBody = document.querySelector("#leaderboard ul");
@@ -47,13 +48,13 @@ form.addEventListener("submit", function (event) {
 
 function updateLeaderboard() {
   leaderboardBody.innerHTML = "";
-  entries.forEach((entry, index) => {
+  entries?.forEach((entry, index) => {
     const row = document.createElement("li");
     row.className = "leaderboard-entry";
 
     const rankEl = document.createElement("span");
     rankEl.className = "leaderboard-rank";
-    rankEl.textContent = `${index+1}.`;
+    rankEl.textContent = `${index + 1}.`;
     row.appendChild(rankEl);
 
     const initialsEl = document.createElement("span");
@@ -144,13 +145,14 @@ function getAndSetUserId(uuid) {
 
 function updateLocalStorage() {
   localStorage.setItem("leaderboardEntries", JSON.stringify(entries));
+  localStorage.setItem("leaderboardScramble", scramble);
   getAndSetUserId();
 }
 
 function updateStorage() {
   updateLocalStorage();
 
-  const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
+  const data = JSON.stringify({ entries, scramble }); // 'entries' is your leaderboard data array
   const encodedData = btoa(data); // Encode it in base64 for URL compatibility
 
   const uuid = getAndSetUserId();
@@ -326,14 +328,16 @@ function generateShareableURL() {
 }
 
 // Call this function on page load to check for shared data in the URL and load it.
-function loadSharedData() {
+function loadSharedData(newScramble = null) {
   const params = new URLSearchParams(window.location.search);
   if (params.has("data")) {
     try {
       const decoded = atob(params.get("data"));
       const sharedData = JSON.parse(decoded);
       // Now update your leaderboard with the shared data
-      entries = sharedData;
+      entries = sharedData.entries;
+      scramble = newScramble ?? sharedData.scramble;
+
       updateLeaderboard();
       updateAggregatedLeaderboard();
     } catch (err) {
@@ -355,10 +359,18 @@ function loadSharedData() {
         const decoded = atob(res.data.encodedData);
         const sharedData = JSON.parse(decoded);
 
-        entries = sharedData;
+        if (Array.isArray(sharedData)) {
+          // Can remove this check first and just do the else
+          entries = sharedData
+          scramble = newScramble ?? scramble;
+        } else {
+          entries = sharedData.entries;
+          scramble = newScramble ?? sharedData.scramble;
+        }
 
         updateLeaderboard();
         updateAggregatedLeaderboard();
+        updateScramble();
 
         console.log("Leaderboard loaded:", res.data);
         return res;
@@ -419,8 +431,21 @@ function generateScramble() {
   return scramble.join(" ");
 }
 
+const updateScramble = () => {
+  scrambleBody.textContent = scramble;
+}
+
+const regenerateScramble = () => {
+  scramble = generateScramble();
+  console.log(scramble);
+  localStorage.setItem("leaderboardScramble", scramble);
+
+  loadSharedData(scramble);
+}
+
 function initEverything() {
   loadSharedData();
-  scrambleBody.textContent = generateScramble();
+  updateScramble();
 }
+
 window.onload = initEverything;

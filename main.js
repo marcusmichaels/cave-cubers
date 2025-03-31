@@ -6,12 +6,17 @@ let scramble = localStorage.getItem("leaderboardScramble") || localStorage.setIt
 
 const form = document.getElementById("entryForm");
 const leaderboardBody = document.querySelector("#leaderboard ul");
+const tournamentBody = document.querySelector("#tournament-leaderboard");
 const aggregatedBody = document.querySelector("#aggregatedLeaderboard tbody");
 const scrambleBody = document.querySelector('#scramble');
 const timeInput = document.getElementById("time");
 
-updateLeaderboard();
-updateAggregatedLeaderboard();
+const scoreEntry = document.querySelector('#score-entry');
+const tournamentEntry = document.querySelector('#tournament-entry');
+
+updateLeaderboards();
+
+let tournamentModeEnabled = false;
 
 form.addEventListener("submit", function (event) {
   event.preventDefault();
@@ -37,8 +42,7 @@ form.addEventListener("submit", function (event) {
   if (initials && !isNaN(time) && time > 0) {
     entries.push({ initials, time });
     entries.sort((a, b) => a.time - b.time);
-    updateLeaderboard();
-    updateAggregatedLeaderboard();
+    updateLeaderboards();
     updateStorage();
     form.reset();
   } else {
@@ -73,13 +77,60 @@ function updateLeaderboard() {
     deleteBtn.className = "delete-btn";
     deleteBtn.addEventListener("click", () => {
       entries.splice(index, 1);
-      updateLeaderboard();
-      updateAggregatedLeaderboard();
+      updateLeaderboards();
       updateStorage();
     });
     rankEl.appendChild(deleteBtn);
 
     leaderboardBody.appendChild(row);
+  });
+}
+
+function updateTournamentTable() {
+  tournamentBody.innerHTML = "";
+  tournamentParticipants.forEach((participant, index) => {
+    const row = document.createElement("li");
+    row.className = "leaderboard-entry";
+
+    const initialsEl = document.createElement("span");
+    initialsEl.className = "leaderboard-initials";
+    initialsEl.textContent = participant.initials;
+    row.appendChild(initialsEl);
+
+    const timeEl = document.createElement("span");
+    timeEl.className = "leaderboard-times";
+    timeEl.textContent = participant.finishTime !== null ? participant.finishTime.toFixed(2) : "-";
+    row.appendChild(timeEl);
+
+    const actionEl = document.createElement("span");
+    actionEl.className = "leaderboard-action";
+    row.appendChild(actionEl);
+
+    if (mainTimerStarted && participant.finishTime === null) {
+      const stopTimerBtn = document.createElement("button");
+
+      stopTimerBtn.textContent = "Stop Timer";
+      stopTimerBtn.className = "stop-btn";
+      stopTimerBtn.addEventListener("click", () => {
+        const finishTime = (Date.now() - mainTimerStartTime) / 1000;
+        participant.finishTime = finishTime;
+        updateTournamentTable();
+        // Add result to main leaderboard
+        entries.push({ initials: participant.initials, time: finishTime });
+        entries.sort((a, b) => a.time - b.time);
+        updateLeaderboards();
+        updateStorage();
+        // If every participant has finished, stop the main tournament timer
+        if (tournamentParticipants.every((p) => p.finishTime !== null)) {
+          clearInterval(mainTimerInterval);
+        }
+      });
+      actionEl.appendChild(stopTimerBtn);
+
+    } else {
+      console.log("do something");
+    }
+    tournamentBody.appendChild(row);
   });
 }
 
@@ -179,21 +230,45 @@ function updateStorage() {
 
 // MAIN TIMER CODE
 
-const startMainTimerBtn = document.getElementById("main-timer-btn");
+const mainTimerBtn = document.getElementById("main-timer-btn");
 
 let mainTimerStarted = false;
 let mainTimerStartTime = null;
 let mainTimerInterval = null;
 
-const startMainTimer = () => {
+const startMainTimer = (options = { mode: null }) => {
+
   if (!mainTimerStarted) {
     mainTimerStarted = true;
     mainTimerStartTime = Date.now();
     mainTimerInterval = setInterval(updateMainTimer, 1);
+
+    if (options.mode === "tournament") {
+      if (tournamentParticipants.length === 0) {
+        alert("Add at least one participant before starting the tournament.");
+        return;
+      }
+      // Disable further additions and starting again
+      mainTimerBtn.disabled = true;
+
+      tournamentForm.querySelector("button").disabled = true;
+      startTournamentBtn.disabled = true;
+      updateTournamentTable(); // refresh to show stop buttons
+    }
+
   } else {
     if (mainTimerInterval) {
       clearInterval(mainTimerInterval);
     }
+
+    if (options.mode === "tournament") {
+      // Disable further additions and starting again
+      tournamentForm.querySelector("button").disabled = false;
+      startTournamentBtn.disabled = false;
+      mainTimerBtn.disabled = false;
+      updateTournamentTable(); // refresh to show stop buttons
+    }
+
     mainTimerStarted = false;
     mainTimerStartTime = null;
   }
@@ -202,7 +277,7 @@ const startMainTimer = () => {
 const updateMainTimer = () => {
   if (mainTimerStarted) {
     const elapsed = (Date.now() - mainTimerStartTime) / 1000;
-    startMainTimerBtn.textContent = elapsed.toFixed(2);
+    mainTimerBtn.textContent = elapsed.toFixed(2);
     timeInput.value = elapsed.toFixed(2);
   }
 }
@@ -211,9 +286,6 @@ const updateMainTimer = () => {
 // Tournament Mode Code
 // --------------------
 let tournamentParticipants = [];
-let tournamentStarted = false;
-let tournamentStartTime = null;
-let tournamentTimerInterval = null;
 
 const tournamentForm = document.getElementById("tournamentForm");
 const tournamentTableBody = document.querySelector("#tournamentTable tbody");
@@ -223,7 +295,7 @@ const resetTournamentBtn = document.getElementById("resetTournamentBtn");
 
 tournamentForm.addEventListener("submit", function (e) {
   e.preventDefault();
-  if (tournamentStarted) return false;
+  if (mainTimerStarted) return false;
   const initials = document.getElementById("tournamentInitials").value.toUpperCase().trim();
   if (initials) {
     tournamentParticipants.push({ initials, finishTime: null });
@@ -233,82 +305,19 @@ tournamentForm.addEventListener("submit", function (e) {
   return false;
 });
 
-startTournamentBtn.addEventListener("click", function () {
-  if (tournamentParticipants.length === 0) {
-    alert("Add at least one participant before starting the tournament.");
-    return;
-  }
-  if (!tournamentStarted) {
-    tournamentStarted = true;
-    tournamentStartTime = Date.now();
-    tournamentTimerInterval = setInterval(updateTournamentTimer, 1);
-    // Disable further additions and starting again
-    tournamentForm.querySelector("button").disabled = true;
-    startTournamentBtn.disabled = true;
-    updateTournamentTable(); // refresh to show stop buttons
-  }
-});
-
-function updateTournamentTimer() {
-  if (tournamentStarted) {
-    const elapsed = (Date.now() - tournamentStartTime) / 1000;
-    tournamentTimerDisplay.textContent = elapsed.toFixed(2);
-  }
-}
-
-function updateTournamentTable() {
-  tournamentTableBody.innerHTML = "";
-  tournamentParticipants.forEach((participant, index) => {
-    const row = document.createElement("tr");
-
-    const initialsCell = document.createElement("td");
-    initialsCell.textContent = participant.initials;
-    row.appendChild(initialsCell);
-
-    const timeCell = document.createElement("td");
-    timeCell.textContent = participant.finishTime !== null ? participant.finishTime.toFixed(2) : "-";
-    row.appendChild(timeCell);
-
-    const actionCell = document.createElement("td");
-    if (tournamentStarted && participant.finishTime === null) {
-      const stopBtn = document.createElement("button");
-      stopBtn.textContent = "Stop Timer";
-      stopBtn.className = "stop-btn";
-      stopBtn.addEventListener("click", function () {
-        const finishTime = (Date.now() - tournamentStartTime) / 1000;
-        participant.finishTime = finishTime;
-        updateTournamentTable();
-        // Add result to main leaderboard
-        entries.push({ initials: participant.initials, time: finishTime });
-        entries.sort((a, b) => a.time - b.time);
-        updateLeaderboard();
-        updateAggregatedLeaderboard();
-        updateStorage();
-        // If every participant has finished, stop the main tournament timer
-        if (tournamentParticipants.every((p) => p.finishTime !== null)) {
-          clearInterval(tournamentTimerInterval);
-        }
-      });
-      actionCell.appendChild(stopBtn);
-    } else {
-      actionCell.textContent = "-";
-    }
-    row.appendChild(actionCell);
-    tournamentTableBody.appendChild(row);
-  });
-}
+startTournamentBtn.addEventListener("click", () => startMainTimer({ mode: tournamentModeEnabled ? "tournament" : null }));
 
 // Reset Tournament Button Handler
 resetTournamentBtn.addEventListener("click", function () {
   // Stop the timer if it's still running
-  if (tournamentTimerInterval) {
-    clearInterval(tournamentTimerInterval);
+  if (mainTimerInterval) {
+    clearInterval(mainTimerInterval);
   }
   // Reset tournament variables
   tournamentParticipants = [];
-  tournamentStarted = false;
-  tournamentStartTime = null;
-  tournamentTimerDisplay.textContent = "0.00";
+  mainTimerStarted = false;
+  mainTimerStarted = null;
+  // tournamentTimerDisplay.textContent = "0.00";
 
   // Re-enable tournament form and start button
   tournamentForm.querySelector("button").disabled = false;
@@ -323,7 +332,7 @@ function generateShareableURL() {
   // const data = JSON.stringify(entries); // 'entries' is your leaderboard data array
   // const encoded = btoa(data); // Encode it in base64 for URL compatibility
   const uuid = getAndSetUserId();
-  const url = `${window.location.origin}${window.location.pathname}?uuid=${uuid}`;
+  const url = `${window.location.origin}${window.location.pathname}?uuid = ${uuid} `;
   return url;
 }
 
@@ -338,8 +347,7 @@ function loadSharedData(newScramble = null) {
       entries = sharedData.entries;
       scramble = newScramble ?? sharedData.scramble;
 
-      updateLeaderboard();
-      updateAggregatedLeaderboard();
+      updateLeaderboards();
     } catch (err) {
       console.error("Failed to load shared data:", err);
     }
@@ -368,8 +376,7 @@ function loadSharedData(newScramble = null) {
           scramble = newScramble ?? sharedData.scramble;
         }
 
-        updateLeaderboard();
-        updateAggregatedLeaderboard();
+        updateLeaderboards();
         updateScramble();
 
         console.log("Leaderboard loaded:", res.data);
@@ -379,7 +386,7 @@ function loadSharedData(newScramble = null) {
         console.error("Error loading leaderboard:", err);
       });
   }
-}
+};
 
 function copyShareableURL() {
   const url = generateShareableURL();
@@ -441,6 +448,18 @@ const regenerateScramble = () => {
   localStorage.setItem("leaderboardScramble", scramble);
 
   loadSharedData(scramble);
+}
+
+function updateLeaderboards() {
+  updateLeaderboard();
+  updateAggregatedLeaderboard();
+}
+
+function toggleTournamentMode() {
+  tournamentModeEnabled = !tournamentModeEnabled
+  
+  scoreEntry.classList.toggle("hidden", tournamentModeEnabled)
+  tournamentEntry.classList.toggle("hidden", !tournamentModeEnabled)
 }
 
 function initEverything() {

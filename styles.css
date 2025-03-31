@@ -84,8 +84,8 @@ header {
 
 .scramble-btn {
   all: inherit;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   display: inline-block;
   vertical-align: bottom;
   line-height: 0;
@@ -166,6 +166,10 @@ header {
 }
 
 .leaderboard-entry {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   border-bottom: 1px solid var(--accent-color);
 
   &:last-of-type {
@@ -177,7 +181,7 @@ header {
     display: inline-block;
     text-align: left;
     width: 6.25em;
-    margin-top: 0.3rem;
+    margin-top: 0.2rem;
     margin-bottom: 0.5rem;
     text-align: center;
   }
@@ -187,12 +191,21 @@ header {
     left: 0;
     display: none;
   }
+  
+  .leaderboard-action {
+    line-height: 0;
+    margin:0;
+  }
 
   &:hover {
     .delete-btn {
       display: inline-block;
     }
   }
+}
+
+.hidden {
+  display: none;
 }
 
 .scramble-container {
@@ -323,6 +336,10 @@ table tbody tr:hover {
   color: #fff;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+
+.stop-btn {
+  font-size: 0.6em;
 }
 
 .delete-btn:hover,

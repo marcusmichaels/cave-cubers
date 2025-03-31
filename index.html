@@ -24,7 +24,7 @@
     <button id="main-timer-btn" class="main-timer" onclick="startMainTimer()" title="Click to start timer">0.00</button>
   </section>
 
-  <section class="entry-form">
+  <section id="score-entry" class="entry-form">
     <form id="entryForm">
       <input type="text" id="initials" placeholder="Initials" required maxlength="4" />
       <input type="text" id="time" placeholder="Time" required />
@@ -32,11 +32,28 @@
     </form>
   </section>
 
+  <section id="tournament-entry" class="tournament hidden silkscreen-regular">
+    <ul id="tournament-leaderboard" class="leaderboard-entries">
+      <!-- Leaderboard entries will appear here -->
+    </ul>
+    <form id="tournamentForm">
+      <input type="text" id="tournamentInitials" placeholder="Initials" required maxlength="4" />
+      <button type="submit">Add Participant</button>
+      <div>
+        <button id="startTournamentBtn">Start Tournament</button>
+        <button id="resetTournamentBtn">Reset Tournament</button>
+      </div>
+    </form>
+  </section>
+
   <section class="scramble-container silkscreen-regular">
     <p class="scramble-text">
       <span id="scramble">...</span>
       <button class="scramble-btn" onclick="regenerateScramble()" title="Refresh scramble">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960"><path d="M480-280q-73 0-127.5-45.5T284-440h62q13 44 49.5 72t84.5 28q58 0 99-41t41-99-41-99-99-41q-29 0-54 10.5T382-580h58v60H280v-160h60v57q27-26 63-41.5t77-15.5q83 0 141.5 58.5T680-480t-58.5 141.5T480-280M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120zM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 -960 960 960">
+          <path
+            d="M480-280q-73 0-127.5-45.5T284-440h62q13 44 49.5 72t84.5 28q58 0 99-41t41-99-41-99-99-41q-29 0-54 10.5T382-580h58v60H280v-160h60v57q27-26 63-41.5t77-15.5q83 0 141.5 58.5T680-480t-58.5 141.5T480-280M200-120q-33 0-56.5-23.5T120-200v-160h80v160h160v80zm400 0v-80h160v-160h80v160q0 33-23.5 56.5T760-120zM120-600v-160q0-33 23.5-56.5T200-840h160v80H200v160zm640 0v-160H600v-80h160q33 0 56.5 23.5T840-760v160z" />
+        </svg>
       </button>
     </p>
   </section>
@@ -48,33 +65,7 @@
   </section>
 
   <div class="container">
-    <!-- TODO: style the rest of this -->
-    <!-- Tournament Mode Section -->
-    <h2>Tournament Mode</h2>
-    <div id="tournamentSection">
-      <div class="tournament-timer">Main Timer: <span id="tournamentTimer">0.00</span> s</div>
-      <div id="tournamentControls">
-        <form id="tournamentForm">
-          <input type="text" id="tournamentInitials" placeholder="Initials" required maxlength="4" />
-          <button type="submit">Add Participant</button>
-        </form>
-        <button id="startTournamentBtn">Start Tournament</button>
-      </div>
-      <table id="tournamentTable">
-        <thead>
-          <tr>
-            <th>Initials</th>
-            <th>Finish Time (s)</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Tournament participants will appear here -->
-        </tbody>
-      </table>
-      <!-- Reset Tournament Button -->
-      <button id="resetTournamentBtn" class="reset-btn">Reset Tournament</button>
-    </div>
+
 
     <!-- Aggregated Leaderboard -->
     <h2>Average Times By Initials</h2>

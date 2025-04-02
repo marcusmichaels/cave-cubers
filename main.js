@@ -2,7 +2,7 @@
 // Main Leaderboard Code
 // --------------------
 let entries = JSON.parse(localStorage.getItem("leaderboardEntries")) || [];
-let scramble = localStorage.getItem("leaderboardScramble") || localStorage.setItem("leaderboardScramble", generateScramble());
+let scramble = localStorage.getItem("leaderboardScramble") ?? generateScramble();
 
 const form = document.getElementById("entryForm");
 const leaderboardBody = document.querySelector("#leaderboard ul");
@@ -439,7 +439,7 @@ function initEverything() {
   updateScramble();
 }
 
-// start polling every 5 seconds
-let pollingId = setInterval(loadSharedData, 3000)
-
 window.onload = initEverything;
+
+// start polling every 5 seconds
+let pollingId = setInterval(loadSharedData, 3000);

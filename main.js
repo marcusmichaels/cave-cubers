@@ -346,8 +346,6 @@ function loadSharedData(newScramble = null) {
   } else {
     const uuid = params.has("uuid") ? getAndSetUserId(params.get("uuid")) : getAndSetUserId();
 
-    console.log(uuid);
-
     return fetch(`https://lambdas-black.vercel.app/api/cavecubers?uuid=${uuid}`)
       .then((response) => {
         if (!response.ok) {
@@ -359,14 +357,8 @@ function loadSharedData(newScramble = null) {
         const decoded = atob(res.data.encodedData);
         const sharedData = JSON.parse(decoded);
 
-        if (Array.isArray(sharedData)) {
-          // Can remove this check first and just do the else
-          entries = sharedData
-          scramble = newScramble ?? scramble;
-        } else {
-          entries = sharedData.entries;
-          scramble = newScramble ?? sharedData.scramble;
-        }
+        entries = sharedData.entries;
+        scramble = newScramble ?? sharedData.scramble;
 
         updateLeaderboard();
         updateAggregatedLeaderboard();
@@ -432,20 +424,22 @@ function generateScramble() {
 }
 
 const updateScramble = () => {
+  localStorage.setItem("leaderboardScramble", scramble);
   scrambleBody.textContent = scramble;
 }
 
 const regenerateScramble = () => {
   scramble = generateScramble();
-  console.log(scramble);
-  localStorage.setItem("leaderboardScramble", scramble);
-
   loadSharedData(scramble);
+  updateStorage();
 }
 
 function initEverything() {
   loadSharedData();
   updateScramble();
 }
+
+// start polling every 5 seconds
+let pollingId = setInterval(loadSharedData, 3000)
 
 window.onload = initEverything;

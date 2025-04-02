@@ -158,7 +158,7 @@ function updateStorage() {
   const uuid = getAndSetUserId();
 
   return fetch("https://lambdas-black.vercel.app/api/cavecubers", {
-    method: "POST",
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ uuid, encodedData }),
   })

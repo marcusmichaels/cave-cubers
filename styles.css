@@ -118,6 +118,20 @@ header {
   }
 }
 
+.hotkey-timer {
+  display: none;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.hotkey {
+  border: 1px solid black;
+  line-height:0;
+  padding: 0 0.2em 0.1em;
+  border-radius: 4px;
+  box-shadow: 1px 1px 1px black;
+}
+
 .main-timer-container {
   margin-top: 1rem;
 }
@@ -162,6 +176,9 @@ header {
 @media (min-width:660px) {
   .leaderboard-entries {
     font-size: 1.8rem;
+  }
+  .hotkey-timer {
+    display: block;
   }
 }
 

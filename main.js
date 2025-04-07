@@ -187,6 +187,7 @@ let mainTimerInterval = null;
 
 const startMainTimer = () => {
   if (!mainTimerStarted) {
+    startMainTimerBtn.focus();
     mainTimerStarted = true;
     mainTimerStartTime = Date.now();
     mainTimerInterval = setInterval(updateMainTimer, 1);
@@ -434,9 +435,21 @@ const regenerateScramble = () => {
   updateStorage();
 }
 
+
+function onKeyPress(keys, callback) {
+  document.addEventListener('keydown', (event) => {
+    // Convert event.key to lowercase and check if it's in the keys array (case-insensitive)
+    if (keys.some(key => key.toLowerCase() === event.key.toLowerCase())) {
+      callback();
+    }
+  });
+}
+
 function initEverything() {
   loadSharedData();
   updateScramble();
+
+  onKeyPress(['b'], startMainTimer);
 }
 
 window.onload = initEverything;
